@@ -29,4 +29,4 @@ export async function main(ns) {
 }
 ```
 
-3. Exit the nano and write in console: `run start.ns`
+3. Exit the nano and write in console: `run start.js`
