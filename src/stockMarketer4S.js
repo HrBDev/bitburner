@@ -1,3 +1,4 @@
+/** @param {NS} ns **/
 let stockSymbols
 let corpus
 let underperformingShares
@@ -58,6 +59,7 @@ function sellUnderperforming(ns, stockSymbol) {
   }
 }
 
+/** @param {NS} ns **/
 function sellWrongPosition(ns, stockSymbol) {
   const stockInfo = getStockInfo(ns, stockSymbol)
 
@@ -72,6 +74,7 @@ function sellWrongPosition(ns, stockSymbol) {
   }
 }
 
+/** @param {NS} ns **/
 function buyNewShares(ns, stockSymbol) {
   const stockInfo = getStockInfo(ns, stockSymbol)
   const minimumMoneyToInvest = 10 * commission
@@ -86,14 +89,14 @@ function buyNewShares(ns, stockSymbol) {
       maxSharesToBuy = stockInfo.maxShares - stockInfo.sharesLong
       sharesToBuy = Math.max(0, Math.min(maxSharesToBuy, Math.floor(getMoney(ns) / stockInfo.stockAskPrice)))
       if (sharesToBuy) {
-        buyValue = ns.buyStock(stockSymbol, sharesToBuy)
+        buyValue = ns.stock.buy(stockSymbol, sharesToBuy)
       }
       shareType = 'longs'
     } else {
       maxSharesToBuy = stockInfo.maxShares - stockInfo.sharesShort
       sharesToBuy = Math.max(0, Math.min(maxSharesToBuy, Math.floor(getMoney(ns) / stockInfo.stockBidPrice)))
       if (sharesToBuy) {
-        buyValue = ns.shortStock(stockSymbol, sharesToBuy)
+        buyValue = ns.stock.short(stockSymbol, sharesToBuy)
       }
       shareType = 'shorts'
     }
@@ -105,18 +108,19 @@ function buyNewShares(ns, stockSymbol) {
   }
 }
 
+/** @param {NS} ns **/
 function getStockInfo(ns, stockSymbol) {
-  const [sharesLong, avgPriceLong, sharesShort, avgPriceShort] = ns.getStockPosition(stockSymbol)
-  const volatility = ns.getStockVolatility(stockSymbol)
-  const probability = ns.getStockForecast(stockSymbol) - 0.5
+  const [sharesLong, avgPriceLong, sharesShort, avgPriceShort] = ns.stock.getPosition(stockSymbol)
+  const volatility = ns.stock.getVolatility(stockSymbol)
+  const probability = ns.stock.getForecast(stockSymbol) - 0.5
   const expectedReturn = Math.abs(volatility * probability)
-  const maxShares = ns.getStockMaxShares(stockSymbol)
+  const maxShares = ns.stock.getMaxShares(stockSymbol)
 
   const haveAnyShares = sharesLong + sharesShort > 0
   const haveMaxShares = sharesLong + sharesShort === maxShares
 
-  const stockAskPrice = ns.getStockAskPrice(stockSymbol)
-  const stockBidPrice = ns.getStockBidPrice(stockSymbol)
+  const stockAskPrice = ns.stock.getAskPrice(stockSymbol)
+  const stockBidPrice = ns.stock.getBidPrice(stockSymbol)
 
   const position = probability >= 0 ? 'Long' : 'Short'
 
@@ -138,11 +142,12 @@ function getStockInfo(ns, stockSymbol) {
   }
 }
 
+/** @param {NS} ns **/
 export async function main(ns) {
   ns.disableLog('ALL')
   let tickCounter = 1
 
-  stockSymbols = ns.getStockSymbols()
+  stockSymbols = ns.stock.getSymbols()
 
   corpus = ns.getServerMoneyAvailable('home') - 1000000
   stockSymbols.forEach((stockSymbol) => {
